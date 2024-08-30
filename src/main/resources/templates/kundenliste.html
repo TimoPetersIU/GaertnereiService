@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Kundenliste</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> </head>
+<body>
+
+<div class="container">
+    <h1>Kundenliste</h1>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Kundennummer</th>
+            <th>Vorname</th>
+            <th>Nachname</th>
+            <th>Straße</th>
+            <th>Hausnummer</th>
+            <th>Postleitzahl</th>
+            <th>E-Mail</th>
+            <th>Telefonnummer</th>
+            <th>Aktionen</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="kunde : ${kunden}">
+            <td th:text="${kunde.kundennummer}"></td>
+            <td th:text="${kunde.vorname}"></td>
+            <td th:text="${kunde.nachname}"></td>
+            <td th:text="${kunde.strasse}"></td>
+            <td th:text="${kunde.hausnummer}"></td>
+            <td th:text="${kunde.postleitzahl}"></td>
+            <td th:text="${kunde.email}"></td>
+            <td th:text="${kunde.telefonnummer}"></td>
+            <td>
+                <a th:href="@{/kunden/{id}/bearbeiten(id=${kunde.kundennummer})}">Bearbeiten</a> |
+                <a th:href="@{/kunden/{id}/bestellungen(id=${kunde.kundennummer})}">Bestellungen</a> |
+                <form th:action="@{/kunden/{id}/loeschen(id=${kunde.kundennummer})}" method="post">
+                    <button type="submit" class="btn btn-danger">Löschen</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a href="/kunden/neu" class="btn btn-primary">Neuen Kunden erstellen</a>
+</div>
+
+</body>
+</html>

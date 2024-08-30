@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Bestellungen von Kunde</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container">
+    <h1 th:text="'Bestellungen von Kunde ' + ${kunde.vorname} + ' ' + ${kunde.nachname}"></h1>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>Bestellnummer</th>
+            <th>Beschreibung</th>
+            <th>Preis</th>
+            <th>Bestelldatum</th>
+            <th>Lieferstatus</th>
+            <th>Aktionen</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="bestellung : ${bestellungen}">
+            <td th:text="${bestellung.bestellnummer}"></td>
+            <td th:text="${bestellung.beschreibung}"></td>
+            <td th:text="${bestellung.preis}"></td>
+            <td th:text="${#temporals.format(bestellung.bestelldatum, 'dd.MM.yyyy')}"></td>
+            <td th:text="${bestellung.lieferstatus}"></td>
+            <td>
+                <a th:href="@{/kunden/{kundennummer}/bestellungen/{id}/bearbeiten(kundennummer=${kunde.kundennummer}, id=${bestellung.bestellnummer})}">Bearbeiten</a> |
+                <a th:href="@{/kunden/{kundennummer}/bestellungen/{id}/loeschen(kundennummer=${kunde.kundennummer}, id=${bestellung.bestellnummer})}">Löschen</a>
+                <form th:action="@{/kunden/{kundennummer}/bestellungen/{id}/loeschen(kundennummer=${kunde.kundennummer}, id=${bestellung.bestellnummer})}" method="post">
+                    <button type="submit" class="btn btn-danger">Löschen</button>
+                </form>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+    <a th:href="@{/kunden/{kundennummer}/bestellungen/neu(kundennummer=${kunde.kundennummer})}" class="btn btn-primary">Neue Bestellung erstellen</a>
+    <a th:href="@{/kunden}" class="btn btn-secondary">Zurück zur Kundenliste</a>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="de" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Neue Bestellung für Kunde</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+
+<div class="container">
+    <h1 th:text="'Neue Bestellung für Kunde ' + ${kunde.vorname} + ' ' + ${kunde.nachname}"></h1>
+
+    <form th:action="@{/kunden/{kundennummer}/bestellungen(kundennummer=${kunde.kundennummer})}" th:object="${bestellung}" method="post">
+        <div class="form-group">
+            <label for="beschreibung">Beschreibung:</label>
+            <input type="text" class="form-control" id="beschreibung" th:field="*{beschreibung}">
+        </div>
+        <div class="form-group">
+            <label for="preis">Preis:</label>
+            <input type="number" class="form-control" id="preis" th:field="*{preis}" step="0.01" required>
+        </div>
+        <div class="form-group">
+            <label for="bestelldatum">Bestelldatum:</label>
+            <input type="date" class="form-control" id="bestelldatum" th:field="*{bestelldatum}" required>
+        </div>
+        <div class="form-group">
+            <label for="lieferstatus">Lieferstatus:</label>
+            <select class="form-control" id="lieferstatus" th:field="*{lieferstatus}">
+                <option th:value="0">Offen</option>
+                <option th:value="1">In Bearbeitung</option>
+                <option th:value="2">Versandt</option>
+                <option th:value="3">Geliefert</option>
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Speichern</button>
+    </form>
+
+    <a th:href="@{/kunden/{kundennummer}/bestellungen(kundennummer=${kunde.kundennummer})}" class="btn btn-secondary">Zurück zu den Bestellungen</a>
+</div>
+
+</body>
+</html>
