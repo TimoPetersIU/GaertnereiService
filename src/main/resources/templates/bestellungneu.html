@@ -11,6 +11,16 @@
     <h1 th:text="'Neue Bestellung für Kunde ' + ${kunde.vorname} + ' ' + ${kunde.nachname}"></h1>
 
     <form th:action="@{/kunden/{kundennummer}/bestellungen(kundennummer=${kunde.kundennummer})}" th:object="${bestellung}" method="post">
+
+        <div class="form-group">
+            <label for="bestellprozess">Bestellprozess:</label>
+            <select class="form-control" id="bestellprozess" name="bestellprozess">
+                <option value="standard">Standard</option>
+                <option value="express">Express</option>
+                <option value="abholung">Abholung</option>
+            </select>
+        </div>
+
         <div class="form-group">
             <label for="beschreibung">Beschreibung:</label>
             <input type="text" class="form-control" id="beschreibung" th:field="*{beschreibung}">

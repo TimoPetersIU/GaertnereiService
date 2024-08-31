@@ -9,6 +9,10 @@ import peters.iu.programmierenvonwebanwendungen_peters.repository.BestellungRepo
 import peters.iu.programmierenvonwebanwendungen_peters.repository.KundenRepository;
 import peters.iu.programmierenvonwebanwendungen_peters.entity.Bestellung;
 import peters.iu.programmierenvonwebanwendungen_peters.entity.Kunde;
+import peters.iu.programmierenvonwebanwendungen_peters.service.AbholungBestellprozess;
+import peters.iu.programmierenvonwebanwendungen_peters.service.Bestellprozess;
+import peters.iu.programmierenvonwebanwendungen_peters.service.ExpressBestellprozess;
+import peters.iu.programmierenvonwebanwendungen_peters.service.StandardBestellprozess;
 
 @Controller
 public class BestellungController {
@@ -39,10 +43,22 @@ public class BestellungController {
     }
 
     @PostMapping("/kunden/{kundennummer}/bestellungen")
-    public String neueBestellungErstellen(@PathVariable Long kundennummer, @ModelAttribute Bestellung bestellung) {
+    public String neueBestellungErstellen(@PathVariable Long kundennummer, @ModelAttribute Bestellung bestellung,  @RequestParam("bestellprozess") String bestellprozessTyp) {
         Kunde kunde = kundenRepository.findById(kundennummer)
                 .orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
         bestellung.setKunde(kunde);
+
+        // Bestellprozess auswählen und starten
+        Bestellprozess bestellprozess;
+        if (bestellprozessTyp.equals("express")) {
+            bestellprozess = new ExpressBestellprozess();
+        } else if (bestellprozessTyp.equals("abholung")) {
+            bestellprozess = new AbholungBestellprozess();
+        } else {
+            bestellprozess = new StandardBestellprozess();
+        }
+        bestellprozess.bestellungVerarbeiten(bestellung);
+
         bestellungRepository.save(bestellung);
         return "redirect:/kunden/" + kundennummer + "/bestellungen";
     }
