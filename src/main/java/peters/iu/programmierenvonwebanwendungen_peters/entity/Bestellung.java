@@ -3,6 +3,7 @@ package peters.iu.programmierenvonwebanwendungen_peters.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name = "bestellung")
@@ -27,6 +28,14 @@ public class Bestellung {
     @ManyToOne
     @JoinColumn(name = "kundennummer", nullable = false)
     private Kunde kunde;
+
+    @ManyToMany
+    @JoinTable(
+            name = "bestellung_produkt",
+            joinColumns = @JoinColumn(name = "bestellung_id"),
+            inverseJoinColumns = @JoinColumn(name = "produkt_id")
+    )
+    private List<Produkt> produkte;
 
     // Getter und Setter für alle Attribute
 
@@ -76,5 +85,13 @@ public class Bestellung {
 
     public void setKunde(Kunde kunde) {
         this.kunde = kunde;
+    }
+
+    public List<Produkt> getProdukte() {
+        return produkte;
+    }
+
+    public void setProdukte(List<Produkt> produkte) {
+        this.produkte = produkte;
     }
 }

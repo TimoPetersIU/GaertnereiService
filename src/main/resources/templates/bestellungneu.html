@@ -10,8 +10,18 @@
 <div class="container">
     <h1 th:text="'Neue Bestellung für Kunde ' + ${kunde.vorname} + ' ' + ${kunde.nachname}"></h1>
 
-    <form th:action="@{/kunden/{kundennummer}/bestellungen(kundennummer=${kunde.kundennummer})}" th:object="${bestellung}" method="post">
+    <form th:action="@{/kunden/{kundennummer}/bestellungen(kundennummer=${kunde.kundennummer})}"
+          th:object="${bestellung}" method="post">
 
+        <div class="form-group">
+            <label for="produkte">Produkte:</label>
+            <select multiple class="form-control" id="produkte" name="produktIds">
+                <option th:each="produkt : ${produkte}"
+                        th:value="${produkt.id}"
+                        th:text="${produkt.name}">
+                </option>
+            </select>
+        </div>
         <div class="form-group">
             <label for="bestellprozess">Bestellprozess:</label>
             <select class="form-control" id="bestellprozess" name="bestellprozess">
@@ -45,7 +55,8 @@
         <button type="submit" class="btn btn-primary">Speichern</button>
     </form>
 
-    <a th:href="@{/kunden/{kundennummer}/bestellungen(kundennummer=${kunde.kundennummer})}" class="btn btn-secondary">Zurück zu den Bestellungen</a>
+    <a th:href="@{/kunden/{kundennummer}/bestellungen(kundennummer=${kunde.kundennummer})}" class="btn btn-secondary">Zurück
+        zu den Bestellungen</a>
 </div>
 
 </body>
