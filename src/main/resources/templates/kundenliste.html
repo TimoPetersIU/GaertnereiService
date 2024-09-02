@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <title>Kundenliste</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"> </head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
 <body>
-
 <div class="container">
     <h1>Kundenliste</h1>
 
@@ -20,6 +20,7 @@
             <th>Postleitzahl</th>
             <th>E-Mail</th>
             <th>Telefonnummer</th>
+            <th>Kundentyp</th>
             <th>Aktionen</th>
         </tr>
         </thead>
@@ -33,12 +34,11 @@
             <td th:text="${kunde.postleitzahl}"></td>
             <td th:text="${kunde.email}"></td>
             <td th:text="${kunde.telefonnummer}"></td>
+            <td th:text="${kunde.kundentyp.name}"></td>
             <td>
                 <a th:href="@{/kunden/{id}/bearbeiten(id=${kunde.kundennummer})}">Bearbeiten</a> |
                 <a th:href="@{/kunden/{id}/bestellungen(id=${kunde.kundennummer})}">Bestellungen</a> |
-                <form th:action="@{/kunden/{id}/loeschen(id=${kunde.kundennummer})}" method="post">
-                    <button type="submit" class="btn btn-danger">Löschen</button>
-                </form>
+                <a th:href="@{/kunden/{id}/loeschen(id=${kunde.kundennummer})}">Löschen</a>
             </td>
         </tr>
         </tbody>
@@ -46,6 +46,5 @@
 
     <a href="/kunden/neu" class="btn btn-primary">Neuen Kunden erstellen</a>
 </div>
-
 </body>
 </html>

@@ -2,15 +2,27 @@
 <html lang="de" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Neuer Kunde</title>
+    <title>Kunde verwalten</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 </head>
 <body>
 
 <div class="container">
-    <h1>Neuer Kunde</h1>
+    <h1 th:text="${kunde.kundennummer == null} ? 'Neuer Kunde' : 'Kunde bearbeiten'"></h1>
 
-    <form th:action="@{/kunden}" th:object="${kunde}" method="post">
+    <form th:action="${kunde.kundennummer == null} ? @{/kunden} : @{/kunden/{id}(id=${kunde.kundennummer})}"
+          th:object="${kunde}" method="post">
+        <div class="form-group">
+            <label for="kundentyp">Kundentyp:</label>
+            <select class="form-control" id="kundentyp" name="kundentypId">
+                <option th:each="typ : ${kundentypen}"
+                        th:value="${typ.id}"
+                        th:text="${typ.name}"
+                        th:selected="${kunde.kundentyp != null && typ.id == kunde.kundentyp.id}">
+                </option>
+            </select>
+        </div>
+
         <div class="form-group">
             <label for="vorname">Vorname:</label>
             <input type="text" class="form-control" id="vorname" th:field="*{vorname}" required>

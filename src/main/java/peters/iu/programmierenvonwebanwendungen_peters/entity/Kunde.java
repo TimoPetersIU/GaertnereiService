@@ -5,6 +5,8 @@ import java.util.List;
 
 
 @Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "dtype")
 @Table(name = "kunde")
 public class Kunde {
 
@@ -36,6 +38,18 @@ public class Kunde {
     @OneToMany(mappedBy = "kunde", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Bestellung> bestellungen;
 
+    @ManyToOne
+    @JoinColumn(name = "kundentyp_id", nullable = false)
+    private Kundentyp kundentyp;
+
+
+    public Kunde(Kundentyp kundentyp) {
+        this.kundentyp = kundentyp;
+    }
+
+    public Kunde() {
+
+    }
     // Getter und Setter für alle Attribute
 
     public Long getKundennummer() {
@@ -108,5 +122,13 @@ public class Kunde {
 
     public void setBestellungen(List<Bestellung> bestellungen) {
         this.bestellungen = bestellungen;
+    }
+
+    public Kundentyp getKundentyp() {
+        return kundentyp;
+    }
+
+    public void setKundentyp(Kundentyp kundentyp) {
+        this.kundentyp = kundentyp;
     }
 }

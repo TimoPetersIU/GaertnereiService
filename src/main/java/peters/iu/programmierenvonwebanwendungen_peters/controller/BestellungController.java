@@ -2,17 +2,14 @@ package peters.iu.programmierenvonwebanwendungen_peters.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import peters.iu.programmierenvonwebanwendungen_peters.repository.BestellungRepository;
-import peters.iu.programmierenvonwebanwendungen_peters.repository.KundenRepository;
 import peters.iu.programmierenvonwebanwendungen_peters.entity.Bestellung;
 import peters.iu.programmierenvonwebanwendungen_peters.entity.Kunde;
-import peters.iu.programmierenvonwebanwendungen_peters.service.AbholungBestellprozess;
+import peters.iu.programmierenvonwebanwendungen_peters.repository.BestellungRepository;
+import peters.iu.programmierenvonwebanwendungen_peters.repository.KundenRepository;
 import peters.iu.programmierenvonwebanwendungen_peters.service.Bestellprozess;
-import peters.iu.programmierenvonwebanwendungen_peters.service.ExpressBestellprozess;
-import peters.iu.programmierenvonwebanwendungen_peters.service.StandardBestellprozess;
+import peters.iu.programmierenvonwebanwendungen_peters.service.BestellprozessFactory;
 
 @Controller
 public class BestellungController {
@@ -23,16 +20,20 @@ public class BestellungController {
     @Autowired
     private KundenRepository kundenRepository;
 
-    // Methoden für CRUD-Operationen und andere Funktionen
+    @Autowired
+    private BestellprozessFactory bestellprozessFactory;
+
+    // Alle Bestellungen eines Kunden anzeigen
     @GetMapping("/kunden/{kundennummer}/bestellungen")
     public String alleBestellungenAnzeigen(@PathVariable Long kundennummer, Model model) {
         Kunde kunde = kundenRepository.findById(kundennummer)
                 .orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
         model.addAttribute("kunde", kunde);
         model.addAttribute("bestellungen", kunde.getBestellungen());
-        return "bestellungsliste"; // Thymeleaf-Template zur Anzeige der Bestellungen eines Kunden
+        return "bestellungsliste";
     }
 
+    // Formular für neue Bestellung eines Kunden anzeigen
     @GetMapping("/kunden/{kundennummer}/bestellungen/neu")
     public String neueBestellungFormular(@PathVariable Long kundennummer, Model model) {
         Kunde kunde = kundenRepository.findById(kundennummer)
@@ -49,14 +50,7 @@ public class BestellungController {
         bestellung.setKunde(kunde);
 
         // Bestellprozess auswählen und starten
-        Bestellprozess bestellprozess;
-        if (bestellprozessTyp.equals("express")) {
-            bestellprozess = new ExpressBestellprozess();
-        } else if (bestellprozessTyp.equals("abholung")) {
-            bestellprozess = new AbholungBestellprozess();
-        } else {
-            bestellprozess = new StandardBestellprozess();
-        }
+        Bestellprozess bestellprozess = bestellprozessFactory.getBestellprozess(bestellprozessTyp);
         bestellprozess.bestellungVerarbeiten(bestellung);
 
         bestellungRepository.save(bestellung);
