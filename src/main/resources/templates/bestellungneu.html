@@ -15,13 +15,28 @@
 
         <div class="form-group">
             <label for="produkte">Produkte:</label>
-            <select multiple class="form-control" id="produkte" name="produktIds">
-                <option th:each="produkt : ${produkte}"
-                        th:value="${produkt.id}"
-                        th:text="${produkt.name}">
-                </option>
-            </select>
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Auswählen</th>
+                    <th>Produkt</th>
+                    <th>Preis</th>
+                    <th>Bestand</th>
+                    <th>Menge</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="produkt : ${produkte}">
+                    <td><input type="checkbox" name="produktIds" th:value="${produkt.id}"></td>
+                    <td th:text="${produkt.name}"></td>
+                    <td th:text="${produkt.preis}"></td>
+                    <td th:text="${produkt.bestand}"></td>
+                    <td><input type="number" name="mengen" value="1" min="1"></td>
+                </tr>
+                </tbody>
+            </table>
         </div>
+
         <div class="form-group">
             <label for="bestellprozess">Bestellprozess:</label>
             <select class="form-control" id="bestellprozess" name="bestellprozess">

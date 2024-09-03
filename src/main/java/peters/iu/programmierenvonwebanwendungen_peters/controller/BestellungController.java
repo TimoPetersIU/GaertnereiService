@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.Bestellposition;
 import peters.iu.programmierenvonwebanwendungen_peters.entity.Bestellung;
 import peters.iu.programmierenvonwebanwendungen_peters.entity.Kunde;
 import peters.iu.programmierenvonwebanwendungen_peters.entity.Produkt;
@@ -13,6 +14,7 @@ import peters.iu.programmierenvonwebanwendungen_peters.repository.ProduktReposit
 import peters.iu.programmierenvonwebanwendungen_peters.service.Bestellprozess;
 import peters.iu.programmierenvonwebanwendungen_peters.service.BestellprozessFactory;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -51,17 +53,28 @@ public class BestellungController {
     }
 
     @PostMapping("/kunden/{kundennummer}/bestellungen")
-    public String neueBestellungErstellen(@PathVariable Long kundennummer, @ModelAttribute Bestellung bestellung, @RequestParam("bestellprozess") String bestellprozessTyp, @RequestParam("produktIds") List<Long> produktIds) {
+    public String neueBestellungErstellen(@PathVariable Long kundennummer, @ModelAttribute Bestellung bestellung, @RequestParam("bestellprozess") String bestellprozessTyp, @RequestParam("produktIds") List<Long> produktIds, @RequestParam("mengen") List<Integer> mengen) {
         Kunde kunde = kundenRepository.findById(kundennummer).orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
         bestellung.setKunde(kunde);
-
-        // Produkte zur Bestellung hinzufügen
-        List<Produkt> produkte = produktRepository.findAllById(produktIds);
-        bestellung.setProdukte(produkte);
 
         // Bestellprozess auswählen und starten
         Bestellprozess bestellprozess = bestellprozessFactory.getBestellprozess(bestellprozessTyp);
         bestellprozess.bestellungVerarbeiten(bestellung);
+
+        // Bestellpositionen erstellen und hinzufügen
+        for (int i = 0; i < produktIds.size(); i++) {
+            Long produktId = produktIds.get(i);
+            int menge = mengen.get(i);
+
+            Produkt produkt = produktRepository.findById(produktId).orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
+
+            Bestellposition bestellposition = new Bestellposition();
+            bestellposition.setBestellung(bestellung);
+            bestellposition.setProdukt(produkt);
+            bestellposition.setMenge(menge);
+
+            bestellung.getBestellpositionen().add(bestellposition);
+        }
 
         bestellungRepository.save(bestellung);
         return "redirect:/kunden/" + kundennummer + "/bestellungen";
@@ -80,13 +93,25 @@ public class BestellungController {
 
         model.addAttribute("kunde", kunde);
         model.addAttribute("bestellung", bestellung);
+        model.addAttribute("produkte", produktRepository.findAll()); // Alle Produkte hinzufügen
+
         return "bestellungbearbeiten";
     }
 
     @PostMapping("/kunden/{kundennummer}/bestellungen/{bestellnummer}")
-    public String bestellungBearbeiten(@PathVariable Long kundennummer, @PathVariable Long bestellnummer, @ModelAttribute Bestellung bestellung) {
-        Kunde kunde = kundenRepository.findById(kundennummer).orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
-        Bestellung bestehendeBestellung = bestellungRepository.findById(bestellnummer).orElseThrow(() -> new IllegalArgumentException("Ungültige Bestellnummer: " + bestellnummer));
+    public String bestellungBearbeiten(@PathVariable Long kundennummer,
+                                       @PathVariable Long bestellnummer,
+                                       @ModelAttribute Bestellung bestellung,
+                                       @RequestParam("bestellprozess") String bestellprozessTyp,
+                                       @RequestParam("produktIds") List<Long> produktIds,
+                                       @RequestParam("mengen") List<Integer> mengen,
+                                       @RequestParam(value = "neueProduktIds", required = false) List<Long> neueProduktIds,
+                                       @RequestParam(value = "neueMengen", required = false) List<Integer> neueMengen) {
+
+        Kunde kunde = kundenRepository.findById(kundennummer)
+                .orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
+        Bestellung bestehendeBestellung = bestellungRepository.findById(bestellnummer)
+                .orElseThrow(() -> new IllegalArgumentException("Ungültige Bestellnummer: " + bestellnummer));
 
         // Überprüfen, ob die Bestellung zum Kunden gehört
         if (!bestehendeBestellung.getKunde().equals(kunde)) {
@@ -98,6 +123,62 @@ public class BestellungController {
         bestehendeBestellung.setPreis(bestellung.getPreis());
         bestehendeBestellung.setBestelldatum(bestellung.getBestelldatum());
         bestehendeBestellung.setLieferstatus(bestellung.getLieferstatus());
+        bestehendeBestellung.setBestellprozessTyp(bestellprozessTyp);
+
+        // Bestellpositionen aktualisieren oder neu erstellen
+        List<Bestellposition> bestehendeBestellpositionen = bestehendeBestellung.getBestellpositionen();
+
+        for (int i = 0; i < produktIds.size(); i++) {
+            Long produktId = produktIds.get(i);
+            int menge = mengen.get(i);
+
+            Produkt produkt = produktRepository.findById(produktId)
+                    .orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
+
+            // Überprüfen, ob eine Bestellposition für dieses Produkt bereits existiert
+            Bestellposition bestehendeBestellposition = bestehendeBestellpositionen.stream()
+                    .filter(bp -> bp.getProdukt().getId().equals(produktId))
+                    .findFirst()
+                    .orElse(null);
+
+            if (bestehendeBestellposition != null) {
+                // Wenn ja, aktualisieren Sie die Menge
+                bestehendeBestellposition.setMenge(menge);
+            } else {
+                // Wenn nein, erstellen Sie eine neue Bestellposition
+                Bestellposition neueBestellposition = new Bestellposition();
+                neueBestellposition.setBestellung(bestehendeBestellung);
+                neueBestellposition.setProdukt(produkt);
+                neueBestellposition.setMenge(menge);
+                bestehendeBestellpositionen.add(neueBestellposition);
+            }
+        }
+
+        // Neue Bestellpositionen hinzufügen (falls neue Produkte ausgewählt wurden)
+        if (neueProduktIds != null && neueMengen != null) {
+            for (int i = 0; i < neueProduktIds.size(); i++) {
+                Long produktId = neueProduktIds.get(i);
+                int menge = neueMengen.get(i);
+
+                Produkt produkt = produktRepository.findById(produktId)
+                        .orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
+
+                Bestellposition neueBestellposition = new Bestellposition();
+                neueBestellposition.setBestellung(bestehendeBestellung);
+                neueBestellposition.setProdukt(produkt);
+                neueBestellposition.setMenge(menge);
+                bestehendeBestellpositionen.add(neueBestellposition);
+            }
+        }
+
+        // Alte Bestellpositionen entfernen, die nicht mehr ausgewählt wurden
+        // Das wird automatisch durch orphanRemoval = true in der @OneToMany-Annotation erledigt
+
+        // Bestellprozess auswählen und starten (falls erforderlich)
+        if (bestellprozessTyp != null && !bestellprozessTyp.isEmpty()) {
+            Bestellprozess bestellprozess = bestellprozessFactory.getBestellprozess(bestellprozessTyp);
+            bestellprozess.bestellungVerarbeiten(bestehendeBestellung);
+        }
 
         bestellungRepository.save(bestehendeBestellung);
         return "redirect:/kunden/" + kundennummer + "/bestellungen";

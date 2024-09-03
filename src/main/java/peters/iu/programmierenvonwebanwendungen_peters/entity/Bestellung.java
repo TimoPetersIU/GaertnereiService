@@ -3,6 +3,7 @@ package peters.iu.programmierenvonwebanwendungen_peters.entity;
 import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -25,17 +26,18 @@ public class Bestellung {
     @Column(nullable = false)
     private int lieferstatus;
 
+    private String bestellprozessTyp;
+
     @ManyToOne
     @JoinColumn(name = "kundennummer", nullable = false)
     private Kunde kunde;
 
-    @ManyToMany
-    @JoinTable(
-            name = "bestellung_produkt",
-            joinColumns = @JoinColumn(name = "bestellung_id"),
-            inverseJoinColumns = @JoinColumn(name = "produkt_id")
-    )
-    private List<Produkt> produkte;
+    @OneToMany(mappedBy = "bestellung", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Bestellposition> bestellpositionen;
+
+    public Bestellung() {
+        this.bestellpositionen = new ArrayList<>();
+    }
 
     // Getter und Setter für alle Attribute
 
@@ -87,11 +89,19 @@ public class Bestellung {
         this.kunde = kunde;
     }
 
-    public List<Produkt> getProdukte() {
-        return produkte;
+    public List<Bestellposition> getBestellpositionen() {
+        return bestellpositionen;
     }
 
-    public void setProdukte(List<Produkt> produkte) {
-        this.produkte = produkte;
+    public void setBestellpositionen(List<Bestellposition> bestellpositionen) {
+        this.bestellpositionen = bestellpositionen;
+    }
+
+    public String getBestellprozessTyp() {
+        return bestellprozessTyp;
+    }
+
+    public void setBestellprozessTyp(String bestellprozessTyp) {
+        this.bestellprozessTyp = bestellprozessTyp;
     }
 }

@@ -2,6 +2,7 @@ package peters.iu.programmierenvonwebanwendungen_peters.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "produkt")
@@ -22,6 +23,9 @@ public class Produkt {
 
     @Column(nullable = false)
     private int bestand;
+
+    @OneToMany(mappedBy = "produkt")
+    private List<Bestellposition> bestellpositionen;
 
     public Long getId() {
         return id;

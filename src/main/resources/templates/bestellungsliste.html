@@ -18,6 +18,7 @@
             <th>Preis</th>
             <th>Bestelldatum</th>
             <th>Lieferstatus</th>
+            <th>Produkte</th>
             <th>Aktionen</th>
         </tr>
         </thead>
@@ -29,11 +30,15 @@
             <td th:text="${#temporals.format(bestellung.bestelldatum, 'dd.MM.yyyy')}"></td>
             <td th:text="${bestellung.lieferstatus}"></td>
             <td>
+                <ul>
+                    <li th:each="bestellposition : ${bestellung.bestellpositionen}">
+                        <span th:text="${bestellposition.produkt.name} + ' (' + ${bestellposition.menge} + ')'"></span>
+                    </li>
+                </ul>
+            </td>
+            <td>
                 <a th:href="@{/kunden/{kundennummer}/bestellungen/{id}/bearbeiten(kundennummer=${kunde.kundennummer}, id=${bestellung.bestellnummer})}">Bearbeiten</a> |
                 <a th:href="@{/kunden/{kundennummer}/bestellungen/{id}/loeschen(kundennummer=${kunde.kundennummer}, id=${bestellung.bestellnummer})}">Löschen</a>
-                <form th:action="@{/kunden/{kundennummer}/bestellungen/{id}/loeschen(kundennummer=${kunde.kundennummer}, id=${bestellung.bestellnummer})}" method="post">
-                    <button type="submit" class="btn btn-danger">Löschen</button>
-                </form>
             </td>
         </tr>
         </tbody>
