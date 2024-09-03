@@ -14,7 +14,6 @@ import peters.iu.programmierenvonwebanwendungen_peters.repository.ProduktReposit
 import peters.iu.programmierenvonwebanwendungen_peters.service.Bestellprozess;
 import peters.iu.programmierenvonwebanwendungen_peters.service.BestellprozessFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Controller
@@ -104,9 +103,9 @@ public class BestellungController {
                                        @ModelAttribute Bestellung bestellung,
                                        @RequestParam("bestellprozess") String bestellprozessTyp,
                                        @RequestParam("produktIds") List<Long> produktIds,
-                                       @RequestParam("mengen") List<Integer> mengen,
-                                       @RequestParam(value = "neueProduktIds", required = false) List<Long> neueProduktIds,
-                                       @RequestParam(value = "neueMengen", required = false) List<Integer> neueMengen) {
+                                       @RequestParam(value = "neueMengen", required = false) List<Integer> neueMengen,
+                                       @RequestParam(value = "neueProduktIds", required = false) List<Long> neueProduktIds
+                                       ) {
 
         Kunde kunde = kundenRepository.findById(kundennummer)
                 .orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
@@ -130,7 +129,7 @@ public class BestellungController {
 
         for (int i = 0; i < produktIds.size(); i++) {
             Long produktId = produktIds.get(i);
-            int menge = mengen.get(i);
+            int menge = neueMengen.get(i);
 
             Produkt produkt = produktRepository.findById(produktId)
                     .orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
@@ -145,7 +144,7 @@ public class BestellungController {
                 // Wenn ja, aktualisieren Sie die Menge
                 bestehendeBestellposition.setMenge(menge);
             } else {
-                // Wenn nein, erstellen Sie eine neue Bestellposition
+                // Wenn nein, erstellen Sie eine neue Bestellposition (dieser Fall sollte eigentlich nicht auftreten, da es sich um bestehende Bestellpositionen handelt)
                 Bestellposition neueBestellposition = new Bestellposition();
                 neueBestellposition.setBestellung(bestehendeBestellung);
                 neueBestellposition.setProdukt(produkt);
