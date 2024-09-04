@@ -39,6 +39,16 @@
             <label for="telefonnummer">Telefonnummer:</label>
             <input type="tel" class="form-control" id="telefonnummer" th:field="*{telefonnummer}">
         </div>
+        <div class="form-group">
+            <label for="kundentyp">Kundentyp:</label>
+            <select class="form-control" id="kundentyp" name="kundentypId">
+                <option th:each="typ : ${kundentypen}"
+                        th:value="${typ.id}"
+                        th:text="${typ.name}"
+                        th:selected="${kunde.kundentyp != null && typ.id == kunde.kundentyp.id}">
+                </option>
+            </select>
+        </div>
         <button type="submit" class="btn btn-primary">Speichern</button>
     </form>
 </div>

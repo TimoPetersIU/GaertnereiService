@@ -82,7 +82,6 @@ public class KundenController {
         return "kundebearbeiten";
     }
 
-    // Kunden bearbeiten
     @PostMapping("/kunden/{id}")
     public String kundeBearbeiten(@PathVariable Long id, @ModelAttribute Kunde kunde, @RequestParam("kundentypId") Long kundentypId) {
         Kunde existingKunde = kundenRepository.findById(id)
