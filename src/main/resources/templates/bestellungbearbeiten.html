@@ -12,7 +12,6 @@
 
     <form th:action="@{/kunden/{kundennummer}/bestellungen/{bestellnummer}(kundennummer=${kunde.kundennummer}, bestellnummer=${bestellung.bestellnummer})}" th:object="${bestellung}" method="post">
         <div class="form-group">
-            <label for="beschreibung">Beschreibung:</label>
             <input type="text" class="form-control" id="beschreibung" th:field="*{beschreibung}">
         </div>
         <div class="form-group">
@@ -21,8 +20,9 @@
         </div>
         <div class="form-group">
             <label for="bestelldatum">Bestelldatum:</label>
-            <input type="date" class="form-control" id="bestelldatum" th:field="*{bestelldatum}" required>
+            <input type="date" class="form-control" id="bestelldatum" name="bestelldatum" th:value="${formattedBestelldatum}" required>
         </div>
+
         <div class="form-group">
             <label for="lieferstatus">Lieferstatus:</label>
             <select class="form-control" id="lieferstatus" th:field="*{lieferstatus}">
@@ -42,28 +42,26 @@
         </div>
 
         <h2>Bestellpositionen</h2>
-        <table class="table">
+        <table class="table" id="bestellpositionenTabelle">
             <thead>
             <tr>
                 <th>Produkt</th>
+                <th>Preis</th>
+                <th>Bestand</th>
                 <th>Menge</th>
                 <th>Aktionen</th>
             </tr>
             </thead>
             <tbody>
-            <tr th:each="bestellposition, bestellpositionStat : ${bestellung.bestellpositionen}">
+            <tr th:each="bestellposition, bestellpositionStat : ${bestellung.bestellpositionen}" th:data-produkt-id="${bestellposition.produkt.id}">
                 <td th:text="${bestellposition.produkt.name}"></td>
+                <td th:text="${bestellposition.produkt.preis}"></td>
+                <td th:text="${bestellposition.produkt.bestand}"></td>
                 <td>
-                    <input type="number" th:name="|mengen[${bestellposition.produkt.id}]|"
-                           th:value="${bestellposition.menge}" min="1">
-                    <input type="hidden" th:name="produktIds"
-                           th:value="${bestellposition.produkt.id}">
+                    <input type="number" th:field="*{bestellpositionen[__${bestellpositionStat.index}__].menge}" min="1">
                 </td>
                 <td>
-                    <button type="submit" class="btn btn-danger"
-                            th:formaction="@{/kunden/{kundennummer}/bestellungen/{bestellnummer}/positionen/{positionId}/loeschen(kundennummer=${kunde.kundennummer}, bestellnummer=${bestellung.bestellnummer}, positionId=${bestellposition.id})}">
-                        Löschen
-                    </button>
+                    <button type="button" class="btn btn-danger" onclick="removeProduct(this)">-</button>
                 </td>
             </tr>
             </tbody>
@@ -71,35 +69,130 @@
 
         <h2>Neue Produkte hinzufügen</h2>
         <div class="form-group">
-            <label for="neueProdukte">Produkte:</label>
-            <table class="table">
+            <table class="table" id="neueProdukteTabelle">
                 <thead>
                 <tr>
-                    <th>Auswählen</th>
                     <th>Produkt</th>
                     <th>Preis</th>
                     <th>Bestand</th>
                     <th>Menge</th>
+                    <th>Aktionen</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:each="produkt : ${produkte}">
-                    <td><input type="checkbox" name="produktIds" th:value="${produkt.id}"></td>
+                <!-- Iteriere über die Liste der verfügbaren Produkte -->
+                <tr th:each="produkt : ${produkte}" th:data-produkt-id="${produkt.id}">
                     <td th:text="${produkt.name}"></td>
                     <td th:text="${produkt.preis}"></td>
                     <td th:text="${produkt.bestand}"></td>
-                    <td><input type="number" name="neueMengen" value="1" min="1"></td>
+                    <td><input type="number" name="neueMengen[${produkt.id}]" value="1" min="1"></td>
+                    <td>
+                        <button type="button" class="btn btn-success" onclick="addProduct(this)">+</button>
+                    </td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
-        <button type="submit" class="btn btn-primary">Speichern</button>
+
+        <!-- Versteckte Felder für die Produkt-IDs und Mengen -->
+        <input type="hidden" id="produktIds" name="produktIds">
+        <input type="hidden" id="mengen" name="mengen">
+
+        <button type="submit" class="btn btn-primary" onclick="updateHiddenFields()">Speichern</button>
     </form>
 
-    <a th:href="@{/kunden/{kundennummer}/bestellungen(kundennummer=${kunde.kundennummer})}" class="btn btn-secondary">Zurück
-        zu den Bestellungen</a>
+    <a th:href="@{/kunden/{kundennummer}/bestellungen(kundennummer=${kunde.kundennummer})}" class="btn btn-secondary">Zurück zu den Bestellungen</a>
 </div>
+
+<script th:inline="javascript">
+    /*<![CDATA[*/
+
+    function moveProduct(productId, fromTableId, toTableId, buttonType) {
+        const fromTable = document.getElementById(fromTableId);
+        const toTable = document.getElementById(toTableId);
+        const fromTableBody = fromTable.querySelector('tbody');
+        const toTableBody = toTable.querySelector('tbody');
+
+        // Finde die Zeile im fromTable mit der passenden data-produkt-id
+        const row = fromTableBody.querySelector(`tr[data-produkt-id="${productId}"]`);
+
+        // Fehler abfangen, wenn die Zeile oder Tabellenkörper nicht gefunden werden
+        if (!row || !fromTableBody || !toTableBody) {
+            console.error(`Fehler: Zeile oder Tabellenkörper nicht gefunden für Produkt ID: ${productId}`);
+            return;
+        }
+
+        // Verschiebe die Zeile zum Ziel-Tabellenkörper
+        toTableBody.appendChild(row);
+
+        // Aktualisiere den Button basierend auf dem Ziel-Tabelle
+        const cell = row.querySelector('td:last-child');
+        if (buttonType === '-') {
+            cell.innerHTML = `<button type="button" class="btn btn-success" onclick="addProduct(this)">+</button>`;
+        } else {
+            cell.innerHTML = `<button type="button" class="btn btn-danger" onclick="removeProduct(this)">-</button>`;
+        }
+    }
+
+    function removeProduct(button) {
+        const row = button.closest('tr');
+        const fromTableBody = document.querySelector('#bestellpositionenTabelle tbody');
+        const toTableBody = document.querySelector('#neueProdukteTabelle tbody');
+
+        if (!row || !fromTableBody || !toTableBody) {
+            console.error("Fehler: Zeile oder Tabellenkörper nicht gefunden.");
+            return;
+        }
+
+        // Ändere den Button in der Zeile von '-' zu '+'
+        row.querySelector('button').outerHTML = '<button type="button" class="btn btn-success" onclick="addProduct(this)">+</button>';
+
+        // Verschiebe die Zeile in die untere Tabelle
+        toTableBody.appendChild(row);
+    }
+
+    function addProduct(button) {
+        const row = button.closest('tr');
+        const fromTableBody = document.querySelector('#neueProdukteTabelle tbody');
+        const toTableBody = document.querySelector('#bestellpositionenTabelle tbody');
+
+        if (!row || !fromTableBody || !toTableBody) {
+            console.error("Fehler: Zeile oder Tabellenkörper nicht gefunden.");
+            return;
+        }
+
+        // Ändere den Button in der Zeile von '+' zu '-'
+        row.querySelector('button').outerHTML = '<button type="button" class="btn btn-danger" onclick="removeProduct(this)">-</button>';
+
+        // Verschiebe die Zeile in die obere Tabelle
+        toTableBody.appendChild(row);
+    }
+
+    // Funktion zum Aktualisieren der versteckten Input-Felder beim Speichern
+    function updateHiddenFields() {
+        const bestellpositionenTabelle = document.getElementById('bestellpositionenTabelle');
+        const rows = bestellpositionenTabelle.querySelectorAll('tbody tr');
+
+        // IDs und Mengen der bestehenden Produkte sammeln
+        const produktIds = [];
+        const mengen = [];
+        rows.forEach(row => {
+            const productId = row.dataset.produktId;
+            const menge = row.querySelector('input[type="number"]').value;
+
+            if (productId && menge) {
+                produktIds.push(productId);
+                mengen.push(menge);
+            }
+        });
+
+        // Versteckte Felder aktualisieren
+        document.getElementById('produktIds').value = produktIds.join(',');
+        document.getElementById('mengen').value = mengen.join(',');
+    }
+    /*]]>*/
+</script>
 
 </body>
 </html>
