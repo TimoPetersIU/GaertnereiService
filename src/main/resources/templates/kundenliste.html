@@ -10,7 +10,8 @@
 <!-- Navbar -->
 <nav class="navbar navbar-expand-lg bg-primary" data-bs-theme="dark">
     <a class="navbar-brand" href="#">Gaertnerei Service</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
@@ -52,7 +53,8 @@
             <td th:text="${kunde.telefonnummer}"></td>
             <td th:text="${kunde.kundentyp.name}"></td>
             <td>
-                <a class="btn btn-info btn-sm" th:href="@{/kunden/{id}/bearbeiten(id=${kunde.kundennummer})}">Bearbeiten</a>
+                <a class="btn btn-info btn-sm"
+                   th:href="@{/kunden/{id}/bearbeiten(id=${kunde.kundennummer})}">Bearbeiten</a>
                 <a class="btn btn-secondary btn-sm" th:href="@{/kunden/{id}/bestellungen(id=${kunde.kundennummer})}">Bestellungen</a>
                 <form th:action="@{/kunden/{id}/loeschen(id=${kunde.kundennummer})}" method="post" class="d-inline">
                     <button type="submit" class="btn btn-danger btn-sm">Löschen</button>
