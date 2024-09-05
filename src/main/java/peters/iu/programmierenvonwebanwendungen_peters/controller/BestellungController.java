@@ -20,7 +20,6 @@ import peters.iu.programmierenvonwebanwendungen_peters.service.BestellungService
 
 import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
-import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -67,7 +66,6 @@ public class BestellungController {
         model.addAttribute("kunde", kunde);
         model.addAttribute("bestellungen", kunde.getBestellungen());
 
-        // Loggen, dass die Bestellungen für den Kunden angezeigt wurden
         log.info("Alle Bestellungen für Kunde {} angezeigt", kundennummer);
         return "bestellungsliste";
     }
@@ -89,7 +87,6 @@ public class BestellungController {
         model.addAttribute("kunde", kunde);
         model.addAttribute("produkte", produktRepository.findAll());
 
-        // Loggen, dass das Formular für eine neue Bestellung angezeigt wurde
         log.info("Formular für neue Bestellung für Kunde {} angezeigt", kundennummer);
         return "bestellungneu";
     }
@@ -105,13 +102,9 @@ public class BestellungController {
      * @return die Weiterleitung zur Liste der Bestellungen des Kunden
      */
     @PostMapping("/kunden/{kundennummer}/bestellungen")
-    public String neueBestellungErstellen(@PathVariable Long kundennummer, @ModelAttribute Bestellung bestellung,
-                                          @RequestParam("bestellprozess") String bestellprozessTyp,
-                                          @RequestParam("produktIds") List<Long> produktIds,
-                                          @RequestParam("mengen") List<Integer> mengen) {
+    public String neueBestellungErstellen(@PathVariable Long kundennummer, @ModelAttribute Bestellung bestellung, @RequestParam("bestellprozess") String bestellprozessTyp, @RequestParam("produktIds") List<Long> produktIds, @RequestParam("mengen") List<Integer> mengen) {
         // Kunde anhand der Kundennummer finden
-        Kunde kunde = kundenRepository.findById(kundennummer)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
+        Kunde kunde = kundenRepository.findById(kundennummer).orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
         bestellung.setKunde(kunde);
 
         // Bestellprozess anhand des Typs erstellen und anwenden
@@ -128,8 +121,7 @@ public class BestellungController {
             Integer menge = mengen.get(i);
 
             // Produkt anhand der Produkt-ID finden
-            Produkt produkt = produktRepository.findById(produktId)
-                    .orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
+            Produkt produkt = produktRepository.findById(produktId).orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
 
             // Überprüfen, ob die Menge den verfügbaren Bestand überschreitet
             if (menge > produkt.getBestand()) {
@@ -203,7 +195,6 @@ public class BestellungController {
         model.addAttribute("produkte", verfügbareProdukte);
         model.addAttribute("formattedBestelldatum", formattedBestelldatum);
 
-        // Loggen, dass die Bestellung zum Bearbeiten geladen wurde
         log.info("Bestellung {} zum Bearbeiten für Kunde {} geladen", bestellnummer, kundennummer);
         return "bestellungbearbeiten";
     }
@@ -219,19 +210,13 @@ public class BestellungController {
      * @return die Weiterleitung zur Liste der Bestellungen des Kunden
      */
     @PostMapping("/kunden/{kundennummer}/bestellungen/{bestellnummer}")
-    public String bestellungBearbeiten(@PathVariable Long kundennummer, @PathVariable Long bestellnummer,
-                                       @ModelAttribute Bestellung bestellung,
-                                       @RequestParam(value = "produktIds", required = false) String produktIds,
-                                       @RequestParam(value = "mengen", required = false) String mengen) {
+    public String bestellungBearbeiten(@PathVariable Long kundennummer, @PathVariable Long bestellnummer, @ModelAttribute Bestellung bestellung, @RequestParam(value = "produktIds", required = false) String produktIds, @RequestParam(value = "mengen", required = false) String mengen) {
 
-        // Loggen, dass die Bestellung bearbeitet wird
         log.info("Bearbeitung der Bestellung {} für Kunde {}", bestellnummer, kundennummer);
 
         // Kunde und bestehende Bestellung anhand der IDs finden
-        Kunde kunde = kundenRepository.findById(kundennummer)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
-        Bestellung bestehendeBestellung = bestellungRepository.findById(bestellnummer)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Bestellnummer: " + bestellnummer));
+        Kunde kunde = kundenRepository.findById(kundennummer).orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
+        Bestellung bestehendeBestellung = bestellungRepository.findById(bestellnummer).orElseThrow(() -> new IllegalArgumentException("Ungültige Bestellnummer: " + bestellnummer));
 
         // Überprüfen, ob die Bestellung zum richtigen Kunden gehört
         if (!bestehendeBestellung.getKunde().equals(kunde)) {
@@ -245,14 +230,12 @@ public class BestellungController {
 
         // Vorhandene Bestellpositionen in eine Map umwandeln
         List<Bestellposition> bestehendeBestellpositionen = bestehendeBestellung.getBestellpositionen();
-        Map<Long, Bestellposition> positionMap = bestehendeBestellpositionen.stream()
-                .collect(Collectors.toMap(bp -> bp.getProdukt().getId(), bp -> bp));
+        Map<Long, Bestellposition> positionMap = bestehendeBestellpositionen.stream().collect(Collectors.toMap(bp -> bp.getProdukt().getId(), bp -> bp));
 
         // Produkt-IDs und Mengen aus den Request-Parametern einlesen
         List<Long> produktIdList = Arrays.stream(produktIds.split(",")).map(Long::parseLong).collect(Collectors.toList());
         List<Integer> mengeList = Arrays.stream(mengen.split(",")).map(Integer::parseInt).collect(Collectors.toList());
 
-        // Loggen der Produkt-IDs und Mengen
         log.info("Produkt IDs: {}", produktIdList);
         log.info("Mengen: {}", mengeList);
 
@@ -261,8 +244,7 @@ public class BestellungController {
             Long produktId = produktIdList.get(i);
             Integer menge = mengeList.get(i);
 
-            Produkt produkt = produktRepository.findById(produktId)
-                    .orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
+            Produkt produkt = produktRepository.findById(produktId).orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
 
             // Überprüfen, ob die Menge den verfügbaren Bestand überschreitet
             if (menge > produkt.getBestand()) {
@@ -290,9 +272,7 @@ public class BestellungController {
         }
 
         // Bestellpositionen entfernen, die nicht mehr enthalten sind
-        List<Bestellposition> zuEntfernen = bestehendeBestellpositionen.stream()
-                .filter(bp -> !produktIdList.contains(bp.getProdukt().getId()))
-                .collect(Collectors.toList());
+        List<Bestellposition> zuEntfernen = bestehendeBestellpositionen.stream().filter(bp -> !produktIdList.contains(bp.getProdukt().getId())).collect(Collectors.toList());
 
         for (Bestellposition bp : zuEntfernen) {
             // Bestand zurücksetzen, wenn Position entfernt wird
@@ -304,9 +284,7 @@ public class BestellungController {
         }
 
         // Neuen Preis der Bestellung berechnen
-        BigDecimal neuerPreis = bestehendeBestellpositionen.stream()
-                .map(bp -> bp.getProdukt().getPreis().multiply(BigDecimal.valueOf(bp.getMenge())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal neuerPreis = bestehendeBestellpositionen.stream().map(bp -> bp.getProdukt().getPreis().multiply(BigDecimal.valueOf(bp.getMenge()))).reduce(BigDecimal.ZERO, BigDecimal::add);
         bestehendeBestellung.setPreis(neuerPreis);
         log.info("Neuer Preis für Bestellung {} berechnet: {}", bestellnummer, neuerPreis);
 
