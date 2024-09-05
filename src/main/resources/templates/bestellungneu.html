@@ -50,10 +50,9 @@
             <label for="beschreibung">Beschreibung:</label>
             <input type="text" class="form-control" id="beschreibung" th:field="*{beschreibung}">
         </div>
-        <div class="form-group">
-            <label for="preis">Preis:</label>
-            <input type="number" class="form-control" id="preis" th:field="*{preis}" step="0.01" required>
-        </div>
+
+        <!-- Preisfeld entfernt, da der Preis im Backend berechnet wird -->
+
         <div class="form-group">
             <label for="bestelldatum">Bestelldatum:</label>
             <input type="date" class="form-control" id="bestelldatum" th:field="*{bestelldatum}" required>

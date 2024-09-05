@@ -14,7 +14,9 @@ import peters.iu.programmierenvonwebanwendungen_peters.repository.KundenReposito
 import peters.iu.programmierenvonwebanwendungen_peters.repository.ProduktRepository;
 import peters.iu.programmierenvonwebanwendungen_peters.service.Bestellprozess;
 import peters.iu.programmierenvonwebanwendungen_peters.service.BestellprozessFactory;
+import peters.iu.programmierenvonwebanwendungen_peters.service.BestellungService;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +30,9 @@ public class BestellungController {
 
     @Autowired
     private BestellungRepository bestellungRepository;
+
+    @Autowired
+    private BestellungService bestellungService;
 
     @Autowired
     private KundenRepository kundenRepository;
@@ -63,28 +68,26 @@ public class BestellungController {
     }
 
     @PostMapping("/kunden/{kundennummer}/bestellungen")
-    public String neueBestellungErstellen(@PathVariable Long kundennummer, @ModelAttribute Bestellung bestellung, @RequestParam("bestellprozess") String bestellprozessTyp, @RequestParam("produktIds") List<Long> produktIds, @RequestParam("mengen") List<Integer> mengen) {
-        Kunde kunde = kundenRepository.findById(kundennummer).orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
+    public String neueBestellungErstellen(@PathVariable Long kundennummer,
+                                          @ModelAttribute Bestellung bestellung,
+                                          @RequestParam("bestellprozess") String bestellprozessTyp,
+                                          @RequestParam("produktIds") List<Long> produktIds,
+                                          @RequestParam("mengen") List<Integer> mengen) {
+        Kunde kunde = kundenRepository.findById(kundennummer)
+                .orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
         bestellung.setKunde(kunde);
 
         // Bestellprozess auswählen und starten
         Bestellprozess bestellprozess = bestellprozessFactory.getBestellprozess(bestellprozessTyp);
         bestellprozess.bestellungVerarbeiten(bestellung);
 
-        // Bestellpositionen erstellen und hinzufügen
-        for (int i = 0; i < produktIds.size(); i++) {
-            Long produktId = produktIds.get(i);
-            int menge = mengen.get(i);
+        // Erstellen der Bestellpositionen und Berechnen des Gesamtpreises
+        List<Bestellposition> bestellpositionen = bestellungService.erzeugeBestellpositionen(produktIds, mengen, bestellung);
+        bestellung.setBestellpositionen(bestellpositionen);
 
-            Produkt produkt = produktRepository.findById(produktId).orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
-
-            Bestellposition bestellposition = new Bestellposition();
-            bestellposition.setBestellung(bestellung);
-            bestellposition.setProdukt(produkt);
-            bestellposition.setMenge(menge);
-
-            bestellung.getBestellpositionen().add(bestellposition);
-        }
+        // Berechne den Preis basierend auf den Bestellpositionen
+        BigDecimal gesamtPreis = bestellungService.berechneGesamtpreis(bestellpositionen);
+        bestellung.setPreis(gesamtPreis);
 
         bestellungRepository.save(bestellung);
         return "redirect:/kunden/" + kundennummer + "/bestellungen";
@@ -159,7 +162,6 @@ public class BestellungController {
 
         // Aktualisieren Sie die Eigenschaften der bestehenden Bestellung
         bestehendeBestellung.setBeschreibung(bestellung.getBeschreibung());
-        bestehendeBestellung.setPreis(bestellung.getPreis());
         bestehendeBestellung.setBestelldatum(bestellung.getBestelldatum());
         bestehendeBestellung.setLieferstatus(bestellung.getLieferstatus());
 
@@ -218,12 +220,21 @@ public class BestellungController {
 
         bestehendeBestellpositionen.removeAll(zuEntfernen);
 
+        // Berechnung des neuen Preises
+        BigDecimal neuerPreis = bestehendeBestellpositionen.stream()
+                .map(bp -> bp.getProdukt().getPreis().multiply(BigDecimal.valueOf(bp.getMenge())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Setze den neuen Preis
+        bestehendeBestellung.setPreis(neuerPreis);
+
         // Speichern der aktualisierten Bestellung
         System.out.println("Speichere Bestellung: " + bestehendeBestellung);
         bestellungRepository.save(bestehendeBestellung);
 
         return "redirect:/kunden/" + kundennummer + "/bestellungen";
     }
+
 
 
 
