@@ -38,7 +38,9 @@
             <td>
                 <a th:href="@{/kunden/{id}/bearbeiten(id=${kunde.kundennummer})}">Bearbeiten</a> |
                 <a th:href="@{/kunden/{id}/bestellungen(id=${kunde.kundennummer})}">Bestellungen</a> |
-                <a th:href="@{/kunden/{id}/loeschen(id=${kunde.kundennummer})}">Löschen</a>
+                <form th:action="@{/kunden/{id}/loeschen(id=${kunde.kundennummer})}" method="post">
+                    <button type="submit" class="btn btn-danger">Löschen</button>
+                </form>
             </td>
         </tr>
         </tbody>
