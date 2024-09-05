@@ -1,6 +1,7 @@
 package peters.iu.programmierenvonwebanwendungen_peters.entity;
 
 import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;

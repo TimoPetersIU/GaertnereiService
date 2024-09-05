@@ -23,8 +23,7 @@ public class BestellungService {
             Long produktId = produktIds.get(i);
             int menge = mengen.get(i);
 
-            Produkt produkt = produktRepository.findById(produktId)
-                    .orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
+            Produkt produkt = produktRepository.findById(produktId).orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
 
             Bestellposition bestellposition = new Bestellposition();
             bestellposition.setBestellung(bestellung);
@@ -37,8 +36,6 @@ public class BestellungService {
     }
 
     public BigDecimal berechneGesamtpreis(List<Bestellposition> bestellpositionen) {
-        return bestellpositionen.stream()
-                .map(bp -> bp.getProdukt().getPreis().multiply(BigDecimal.valueOf(bp.getMenge())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        return bestellpositionen.stream().map(bp -> bp.getProdukt().getPreis().multiply(BigDecimal.valueOf(bp.getMenge()))).reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 }

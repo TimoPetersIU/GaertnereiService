@@ -55,8 +55,7 @@ public class KundenController {
     // Neuen Kunden erstellen
     @PostMapping("/kunden")
     public String neuerKundeErstellen(@ModelAttribute Kunde kunde, @RequestParam("kundentypId") Long kundentypId) {
-        Kundentyp kundentyp = kundentypRepository.findById(kundentypId)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültiger Kundentyp-ID: " + kundentypId));
+        Kundentyp kundentyp = kundentypRepository.findById(kundentypId).orElseThrow(() -> new IllegalArgumentException("Ungültiger Kundentyp-ID: " + kundentypId));
 
         Kunde neuerKunde = kundenFactory.erstelleKunde(kundentyp);
         neuerKunde.setVorname(kunde.getVorname());
@@ -75,8 +74,7 @@ public class KundenController {
     // Formular zum Bearbeiten eines Kunden anzeigen
     @GetMapping("/kunden/{id}/bearbeiten")
     public String kundeBearbeitenFormular(@PathVariable Long id, Model model) {
-        Kunde kunde = kundenRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Kunden-ID: " + id));
+        Kunde kunde = kundenRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Ungültige Kunden-ID: " + id));
         model.addAttribute("kunde", kunde);
         model.addAttribute("kundentypen", kundentypRepository.findAll()); // Kundentypen für Dropdown
         return "kundebearbeiten";
@@ -84,10 +82,8 @@ public class KundenController {
 
     @PostMapping("/kunden/{id}")
     public String kundeBearbeiten(@PathVariable Long id, @ModelAttribute Kunde kunde, @RequestParam("kundentypId") Long kundentypId) {
-        Kunde existingKunde = kundenRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Kunden-ID: " + id));
-        Kundentyp kundentyp = kundentypRepository.findById(kundentypId)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültiger Kundentyp-ID: " + kundentypId));
+        Kunde existingKunde = kundenRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Ungültige Kunden-ID: " + id));
+        Kundentyp kundentyp = kundentypRepository.findById(kundentypId).orElseThrow(() -> new IllegalArgumentException("Ungültiger Kundentyp-ID: " + kundentypId));
 
         // Überprüfen, ob der Kundentyp geändert wurde
         if (!existingKunde.getKundentyp().equals(kundentyp)) {

@@ -68,13 +68,8 @@ public class BestellungController {
     }
 
     @PostMapping("/kunden/{kundennummer}/bestellungen")
-    public String neueBestellungErstellen(@PathVariable Long kundennummer,
-                                          @ModelAttribute Bestellung bestellung,
-                                          @RequestParam("bestellprozess") String bestellprozessTyp,
-                                          @RequestParam("produktIds") List<Long> produktIds,
-                                          @RequestParam("mengen") List<Integer> mengen) {
-        Kunde kunde = kundenRepository.findById(kundennummer)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
+    public String neueBestellungErstellen(@PathVariable Long kundennummer, @ModelAttribute Bestellung bestellung, @RequestParam("bestellprozess") String bestellprozessTyp, @RequestParam("produktIds") List<Long> produktIds, @RequestParam("mengen") List<Integer> mengen) {
+        Kunde kunde = kundenRepository.findById(kundennummer).orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
         bestellung.setKunde(kunde);
 
         // Bestellprozess auswählen und starten
@@ -94,16 +89,11 @@ public class BestellungController {
     }
 
 
-
     @GetMapping("/kunden/{kundennummer}/bestellungen/{bestellnummer}/bearbeiten")
-    public String bestellungBearbeitenFormular(@PathVariable Long kundennummer,
-                                               @PathVariable Long bestellnummer,
-                                               Model model) {
+    public String bestellungBearbeitenFormular(@PathVariable Long kundennummer, @PathVariable Long bestellnummer, Model model) {
         // Hole den Kunden und die Bestellung aus der Datenbank
-        Kunde kunde = kundenRepository.findById(kundennummer)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
-        Bestellung bestellung = bestellungRepository.findById(bestellnummer)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Bestellnummer: " + bestellnummer));
+        Kunde kunde = kundenRepository.findById(kundennummer).orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
+        Bestellung bestellung = bestellungRepository.findById(bestellnummer).orElseThrow(() -> new IllegalArgumentException("Ungültige Bestellnummer: " + bestellnummer));
 
         // Überprüfen, ob die Bestellung zum Kunden gehört
         if (!bestellung.getKunde().equals(kunde)) {
@@ -112,21 +102,15 @@ public class BestellungController {
 
         // Formatieren des Bestelldatums
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String formattedBestelldatum = bestellung.getBestelldatum() != null
-                ? bestellung.getBestelldatum().format(formatter)
-                : ""; // Sicherstellen, dass der Wert nicht null ist
+        String formattedBestelldatum = bestellung.getBestelldatum() != null ? bestellung.getBestelldatum().format(formatter) : ""; // Sicherstellen, dass der Wert nicht null ist
 
         // Finde alle Produkte, die nicht in den Bestellpositionen enthalten sind
         List<Bestellposition> bestehendeBestellpositionen = bestellung.getBestellpositionen();
-        Set<Long> produktIdsInBestellpositionen = bestehendeBestellpositionen.stream()
-                .map(bp -> bp.getProdukt().getId())
-                .collect(Collectors.toSet());
+        Set<Long> produktIdsInBestellpositionen = bestehendeBestellpositionen.stream().map(bp -> bp.getProdukt().getId()).collect(Collectors.toSet());
 
         // Finde alle Produkte, die nicht in den Bestellpositionen enthalten sind
         List<Produkt> alleProdukte = produktRepository.findAll();
-        List<Produkt> verfügbareProdukte = alleProdukte.stream()
-                .filter(produkt -> !produktIdsInBestellpositionen.contains(produkt.getId()))
-                .collect(Collectors.toList());
+        List<Produkt> verfügbareProdukte = alleProdukte.stream().filter(produkt -> !produktIdsInBestellpositionen.contains(produkt.getId())).collect(Collectors.toList());
 
         // Hinzufügen der Attribute zum Modell
         model.addAttribute("kunde", kunde);
@@ -138,23 +122,16 @@ public class BestellungController {
     }
 
 
-
     @PostMapping("/kunden/{kundennummer}/bestellungen/{bestellnummer}")
-    public String bestellungBearbeiten(@PathVariable Long kundennummer,
-                                       @PathVariable Long bestellnummer,
-                                       @ModelAttribute Bestellung bestellung,
-                                       @RequestParam(value = "produktIds", required = false) String produktIds,
-                                       @RequestParam(value = "mengen", required = false) String mengen) {
+    public String bestellungBearbeiten(@PathVariable Long kundennummer, @PathVariable Long bestellnummer, @ModelAttribute Bestellung bestellung, @RequestParam(value = "produktIds", required = false) String produktIds, @RequestParam(value = "mengen", required = false) String mengen) {
 
         // Logge die Parameter für Debugging-Zwecke
         System.out.println("Produkt IDs: " + produktIds);
         System.out.println("Mengen: " + mengen);
 
         // Kunden- und Bestellungsabruf
-        Kunde kunde = kundenRepository.findById(kundennummer)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
-        Bestellung bestehendeBestellung = bestellungRepository.findById(bestellnummer)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Bestellnummer: " + bestellnummer));
+        Kunde kunde = kundenRepository.findById(kundennummer).orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
+        Bestellung bestehendeBestellung = bestellungRepository.findById(bestellnummer).orElseThrow(() -> new IllegalArgumentException("Ungültige Bestellnummer: " + bestellnummer));
 
         if (!bestehendeBestellung.getKunde().equals(kunde)) {
             throw new IllegalArgumentException("Bestellung gehört nicht zu diesem Kunden");
@@ -169,19 +146,14 @@ public class BestellungController {
         List<Bestellposition> bestehendeBestellpositionen = bestehendeBestellung.getBestellpositionen();
 
         // Konvertiere die übergebenen Strings in Listen
-        List<Long> produktIdList = Arrays.stream(produktIds.split(","))
-                .map(Long::parseLong)
-                .collect(Collectors.toList());
-        List<Integer> mengeList = Arrays.stream(mengen.split(","))
-                .map(Integer::parseInt)
-                .collect(Collectors.toList());
+        List<Long> produktIdList = Arrays.stream(produktIds.split(",")).map(Long::parseLong).collect(Collectors.toList());
+        List<Integer> mengeList = Arrays.stream(mengen.split(",")).map(Integer::parseInt).collect(Collectors.toList());
 
         System.out.println("Konvertierte Produkt IDs: " + produktIdList);
         System.out.println("Konvertierte Mengen: " + mengeList);
 
         // Map für schnelle Abgleichung
-        Map<Long, Bestellposition> positionMap = bestehendeBestellpositionen.stream()
-                .collect(Collectors.toMap(bp -> bp.getProdukt().getId(), bp -> bp));
+        Map<Long, Bestellposition> positionMap = bestehendeBestellpositionen.stream().collect(Collectors.toMap(bp -> bp.getProdukt().getId(), bp -> bp));
 
         System.out.println("Bestehende Bestellpositionen (Map): " + positionMap);
 
@@ -199,8 +171,7 @@ public class BestellungController {
                 bestehendePosition.setMenge(menge);
             } else {
                 // Neue Position hinzufügen
-                Produkt produkt = produktRepository.findById(produktId)
-                        .orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
+                Produkt produkt = produktRepository.findById(produktId).orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
 
                 System.out.println("Erstelle neue Bestellposition für Produkt ID: " + produktId);
                 Bestellposition neueBestellposition = new Bestellposition();
@@ -212,18 +183,14 @@ public class BestellungController {
         }
 
         // Entferne Bestellpositionen, die nicht mehr vorhanden sind
-        List<Bestellposition> zuEntfernen = bestehendeBestellpositionen.stream()
-                .filter(bp -> !produktIdList.contains(bp.getProdukt().getId()))
-                .collect(Collectors.toList());
+        List<Bestellposition> zuEntfernen = bestehendeBestellpositionen.stream().filter(bp -> !produktIdList.contains(bp.getProdukt().getId())).collect(Collectors.toList());
 
         System.out.println("Zu entfernende Bestellpositionen: " + zuEntfernen);
 
         bestehendeBestellpositionen.removeAll(zuEntfernen);
 
         // Berechnung des neuen Preises
-        BigDecimal neuerPreis = bestehendeBestellpositionen.stream()
-                .map(bp -> bp.getProdukt().getPreis().multiply(BigDecimal.valueOf(bp.getMenge())))
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal neuerPreis = bestehendeBestellpositionen.stream().map(bp -> bp.getProdukt().getPreis().multiply(BigDecimal.valueOf(bp.getMenge()))).reduce(BigDecimal.ZERO, BigDecimal::add);
 
         // Setze den neuen Preis
         bestehendeBestellung.setPreis(neuerPreis);
@@ -234,9 +201,6 @@ public class BestellungController {
 
         return "redirect:/kunden/" + kundennummer + "/bestellungen";
     }
-
-
-
 
 
     // Bestellung löschen

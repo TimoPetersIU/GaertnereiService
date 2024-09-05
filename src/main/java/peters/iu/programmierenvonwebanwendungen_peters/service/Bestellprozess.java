@@ -14,7 +14,9 @@ public abstract class Bestellprozess {
 
     // Abstrakte Methoden, die von Unterklassen implementiert werden müssen
     protected abstract void produktAuswaehlen(Bestellung bestellung);
+
     protected abstract void versandadresseAngeben(Bestellung bestellung);
+
     protected abstract void zahlungDurchfuehren(Bestellung bestellung);
 
     // Konkrete Methode, die in der Basisklasse implementiert ist
