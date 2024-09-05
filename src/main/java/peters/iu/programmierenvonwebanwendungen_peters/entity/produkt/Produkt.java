@@ -1,6 +1,7 @@
-package peters.iu.programmierenvonwebanwendungen_peters.entity;
+package peters.iu.programmierenvonwebanwendungen_peters.entity.produkt;
 
 import jakarta.persistence.*;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.bestellung.Bestellposition;
 
 import java.math.BigDecimal;
 import java.util.List;

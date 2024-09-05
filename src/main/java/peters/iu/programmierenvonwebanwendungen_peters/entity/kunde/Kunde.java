@@ -1,6 +1,7 @@
-package peters.iu.programmierenvonwebanwendungen_peters.entity;
+package peters.iu.programmierenvonwebanwendungen_peters.entity.kunde;
 
 import jakarta.persistence.*;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.bestellung.Bestellung;
 
 import java.util.List;
 

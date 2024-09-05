@@ -2,9 +2,9 @@ package peters.iu.programmierenvonwebanwendungen_peters.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import peters.iu.programmierenvonwebanwendungen_peters.entity.Bestellposition;
-import peters.iu.programmierenvonwebanwendungen_peters.entity.Bestellung;
-import peters.iu.programmierenvonwebanwendungen_peters.entity.Produkt;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.bestellung.Bestellposition;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.bestellung.Bestellung;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.produkt.Produkt;
 import peters.iu.programmierenvonwebanwendungen_peters.repository.ProduktRepository;
 
 import java.math.BigDecimal;

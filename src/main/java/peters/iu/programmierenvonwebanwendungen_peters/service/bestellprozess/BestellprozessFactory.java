@@ -1,4 +1,4 @@
-package peters.iu.programmierenvonwebanwendungen_peters.service;
+package peters.iu.programmierenvonwebanwendungen_peters.service.bestellprozess;
 
 import org.springframework.stereotype.Component;
 

@@ -1,9 +1,9 @@
 package peters.iu.programmierenvonwebanwendungen_peters.repository;
 
-import peters.iu.programmierenvonwebanwendungen_peters.entity.Kunde;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.kunde.Kunde;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import peters.iu.programmierenvonwebanwendungen_peters.entity.Kundentyp;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.kunde.Kundentyp;
 
 import java.util.List;
 

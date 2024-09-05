@@ -1,6 +1,7 @@
-package peters.iu.programmierenvonwebanwendungen_peters.entity;
+package peters.iu.programmierenvonwebanwendungen_peters.entity.bestellung;
 
 import jakarta.persistence.*;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.kunde.Kunde;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;

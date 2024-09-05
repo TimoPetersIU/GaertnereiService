@@ -2,8 +2,8 @@ package peters.iu.programmierenvonwebanwendungen_peters.controller;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import peters.iu.programmierenvonwebanwendungen_peters.entity.Kunde;
-import peters.iu.programmierenvonwebanwendungen_peters.entity.Kundentyp;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.kunde.Kunde;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.kunde.Kundentyp;
 import peters.iu.programmierenvonwebanwendungen_peters.repository.KundenRepository;
 import peters.iu.programmierenvonwebanwendungen_peters.repository.KundentypRepository;
 import peters.iu.programmierenvonwebanwendungen_peters.service.KundenFactory;

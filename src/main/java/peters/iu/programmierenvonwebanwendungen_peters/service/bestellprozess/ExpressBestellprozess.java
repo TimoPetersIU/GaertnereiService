@@ -1,6 +1,6 @@
-package peters.iu.programmierenvonwebanwendungen_peters.service;
+package peters.iu.programmierenvonwebanwendungen_peters.service.bestellprozess;
 
-import peters.iu.programmierenvonwebanwendungen_peters.entity.Bestellung;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.bestellung.Bestellung;
 
 import java.math.BigDecimal;
 

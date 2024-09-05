@@ -1,6 +1,7 @@
-package peters.iu.programmierenvonwebanwendungen_peters.entity;
+package peters.iu.programmierenvonwebanwendungen_peters.entity.bestellung;
 
 import jakarta.persistence.*;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.produkt.Produkt;
 
 /**
  * Diese Entität repräsentiert eine Bestellposition in einer Bestellung.

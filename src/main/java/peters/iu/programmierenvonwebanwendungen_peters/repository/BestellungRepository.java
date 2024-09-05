@@ -2,7 +2,7 @@ package peters.iu.programmierenvonwebanwendungen_peters.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import peters.iu.programmierenvonwebanwendungen_peters.entity.Bestellung;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.bestellung.Bestellung;
 
 /**
  * Repository für die {@link Bestellung} Entität.

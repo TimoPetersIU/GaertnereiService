@@ -1,4 +1,4 @@
-package peters.iu.programmierenvonwebanwendungen_peters.entity;
+package peters.iu.programmierenvonwebanwendungen_peters.entity.kunde;
 
 import jakarta.persistence.*;
 

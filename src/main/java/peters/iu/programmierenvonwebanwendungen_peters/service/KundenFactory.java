@@ -1,7 +1,7 @@
 package peters.iu.programmierenvonwebanwendungen_peters.service;
 
 import org.springframework.stereotype.Component;
-import peters.iu.programmierenvonwebanwendungen_peters.entity.*;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.kunde.*;
 
 /**
  * Factory-Klasse zur Erstellung von Kundenobjekten basierend auf dem Kundentyp.
