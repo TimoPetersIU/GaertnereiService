@@ -105,9 +105,13 @@ public class BestellungController {
      * @return die Weiterleitung zur Liste der Bestellungen des Kunden
      */
     @PostMapping("/kunden/{kundennummer}/bestellungen")
-    public String neueBestellungErstellen(@PathVariable Long kundennummer, @ModelAttribute Bestellung bestellung, @RequestParam("bestellprozess") String bestellprozessTyp, @RequestParam("produktIds") List<Long> produktIds, @RequestParam("mengen") List<Integer> mengen) {
+    public String neueBestellungErstellen(@PathVariable Long kundennummer, @ModelAttribute Bestellung bestellung,
+                                          @RequestParam("bestellprozess") String bestellprozessTyp,
+                                          @RequestParam("produktIds") List<Long> produktIds,
+                                          @RequestParam("mengen") List<Integer> mengen) {
         // Kunde anhand der Kundennummer finden
-        Kunde kunde = kundenRepository.findById(kundennummer).orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
+        Kunde kunde = kundenRepository.findById(kundennummer)
+                .orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
         bestellung.setKunde(kunde);
 
         // Bestellprozess anhand des Typs erstellen und anwenden
@@ -115,8 +119,38 @@ public class BestellungController {
         bestellprozess.bestellungVerarbeiten(bestellung);
         log.info("Bestellprozess '{}' angewendet auf Bestellung {}", bestellprozessTyp, bestellung.getBestellnummer());
 
-        // Bestellpositionen erzeugen und zur Bestellung hinzufügen
-        List<Bestellposition> bestellpositionen = bestellungService.erzeugeBestellpositionen(produktIds, mengen, bestellung);
+        // Liste für Bestellpositionen vorbereiten
+        List<Bestellposition> bestellpositionen = new ArrayList<>();
+
+        // Überprüfen und Erstellen von Bestellpositionen
+        for (int i = 0; i < produktIds.size(); i++) {
+            Long produktId = produktIds.get(i);
+            Integer menge = mengen.get(i);
+
+            // Produkt anhand der Produkt-ID finden
+            Produkt produkt = produktRepository.findById(produktId)
+                    .orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
+
+            // Überprüfen, ob die Menge den verfügbaren Bestand überschreitet
+            if (menge > produkt.getBestand()) {
+                log.error("Die Menge {} für Produkt ID {} überschreitet den verfügbaren Bestand {}", menge, produktId, produkt.getBestand());
+                throw new IllegalArgumentException("Die Menge überschreitet den verfügbaren Bestand des Produkts.");
+            }
+
+            // Bestand des Produkts aktualisieren
+            produkt.setBestand(produkt.getBestand() - menge);
+            produktRepository.save(produkt);
+
+            // Bestellposition erstellen und zur Liste hinzufügen
+            Bestellposition bestellposition = new Bestellposition();
+            bestellposition.setBestellung(bestellung);
+            bestellposition.setProdukt(produkt);
+            bestellposition.setMenge(menge);
+            bestellpositionen.add(bestellposition);
+            log.info("Bestellposition für Produkt ID {} mit Menge {} erstellt", produktId, menge);
+        }
+
+        // Bestellpositionen zur Bestellung hinzufügen
         bestellung.setBestellpositionen(bestellpositionen);
 
         // Gesamtpreis der Bestellung berechnen
@@ -185,14 +219,19 @@ public class BestellungController {
      * @return die Weiterleitung zur Liste der Bestellungen des Kunden
      */
     @PostMapping("/kunden/{kundennummer}/bestellungen/{bestellnummer}")
-    public String bestellungBearbeiten(@PathVariable Long kundennummer, @PathVariable Long bestellnummer, @ModelAttribute Bestellung bestellung, @RequestParam(value = "produktIds", required = false) String produktIds, @RequestParam(value = "mengen", required = false) String mengen) {
+    public String bestellungBearbeiten(@PathVariable Long kundennummer, @PathVariable Long bestellnummer,
+                                       @ModelAttribute Bestellung bestellung,
+                                       @RequestParam(value = "produktIds", required = false) String produktIds,
+                                       @RequestParam(value = "mengen", required = false) String mengen) {
 
         // Loggen, dass die Bestellung bearbeitet wird
         log.info("Bearbeitung der Bestellung {} für Kunde {}", bestellnummer, kundennummer);
 
         // Kunde und bestehende Bestellung anhand der IDs finden
-        Kunde kunde = kundenRepository.findById(kundennummer).orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
-        Bestellung bestehendeBestellung = bestellungRepository.findById(bestellnummer).orElseThrow(() -> new IllegalArgumentException("Ungültige Bestellnummer: " + bestellnummer));
+        Kunde kunde = kundenRepository.findById(kundennummer)
+                .orElseThrow(() -> new IllegalArgumentException("Ungültige Kundennummer: " + kundennummer));
+        Bestellung bestehendeBestellung = bestellungRepository.findById(bestellnummer)
+                .orElseThrow(() -> new IllegalArgumentException("Ungültige Bestellnummer: " + bestellnummer));
 
         // Überprüfen, ob die Bestellung zum richtigen Kunden gehört
         if (!bestehendeBestellung.getKunde().equals(kunde)) {
@@ -206,7 +245,8 @@ public class BestellungController {
 
         // Vorhandene Bestellpositionen in eine Map umwandeln
         List<Bestellposition> bestehendeBestellpositionen = bestehendeBestellung.getBestellpositionen();
-        Map<Long, Bestellposition> positionMap = bestehendeBestellpositionen.stream().collect(Collectors.toMap(bp -> bp.getProdukt().getId(), bp -> bp));
+        Map<Long, Bestellposition> positionMap = bestehendeBestellpositionen.stream()
+                .collect(Collectors.toMap(bp -> bp.getProdukt().getId(), bp -> bp));
 
         // Produkt-IDs und Mengen aus den Request-Parametern einlesen
         List<Long> produktIdList = Arrays.stream(produktIds.split(",")).map(Long::parseLong).collect(Collectors.toList());
@@ -216,35 +256,57 @@ public class BestellungController {
         log.info("Produkt IDs: {}", produktIdList);
         log.info("Mengen: {}", mengeList);
 
-        // Bestellpositionen aktualisieren oder neue hinzufügen
+        // Überprüfen und Aktualisieren oder Hinzufügen von Bestellpositionen
         for (int i = 0; i < produktIdList.size(); i++) {
             Long produktId = produktIdList.get(i);
             Integer menge = mengeList.get(i);
 
+            Produkt produkt = produktRepository.findById(produktId)
+                    .orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
+
+            // Überprüfen, ob die Menge den verfügbaren Bestand überschreitet
+            if (menge > produkt.getBestand()) {
+                log.error("Die Menge {} für Produkt ID {} überschreitet den verfügbaren Bestand {}", menge, produktId, produkt.getBestand());
+                throw new IllegalArgumentException("Die Menge überschreitet den verfügbaren Bestand des Produkts.");
+            }
+
             Bestellposition bestehendePosition = positionMap.get(produktId);
             if (bestehendePosition != null) {
                 // Bestehende Position aktualisieren
+                produkt.setBestand(produkt.getBestand() + bestehendePosition.getMenge() - menge);
                 bestehendePosition.setMenge(menge);
                 log.info("Bestehende Position für Produkt ID {} aktualisiert auf Menge {}", produktId, menge);
             } else {
                 // Neue Position erstellen
-                Produkt produkt = produktRepository.findById(produktId).orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + produktId));
-
                 Bestellposition neueBestellposition = new Bestellposition();
                 neueBestellposition.setBestellung(bestehendeBestellung);
                 neueBestellposition.setProdukt(produkt);
                 neueBestellposition.setMenge(menge);
                 bestehendeBestellpositionen.add(neueBestellposition);
+                produkt.setBestand(produkt.getBestand() - menge);
                 log.info("Neue Bestellposition für Produkt ID {} mit Menge {} erstellt", produktId, menge);
             }
+            produktRepository.save(produkt); // Produkt mit aktualisiertem Bestand speichern
         }
 
         // Bestellpositionen entfernen, die nicht mehr enthalten sind
-        List<Bestellposition> zuEntfernen = bestehendeBestellpositionen.stream().filter(bp -> !produktIdList.contains(bp.getProdukt().getId())).collect(Collectors.toList());
-        bestehendeBestellpositionen.removeAll(zuEntfernen);
+        List<Bestellposition> zuEntfernen = bestehendeBestellpositionen.stream()
+                .filter(bp -> !produktIdList.contains(bp.getProdukt().getId()))
+                .collect(Collectors.toList());
+
+        for (Bestellposition bp : zuEntfernen) {
+            // Bestand zurücksetzen, wenn Position entfernt wird
+            Produkt produkt = bp.getProdukt();
+            produkt.setBestand(produkt.getBestand() + bp.getMenge());
+            produktRepository.save(produkt);
+            bestehendeBestellpositionen.remove(bp);
+            log.info("Bestellposition für Produkt ID {} entfernt und Bestand zurückgesetzt", bp.getProdukt().getId());
+        }
 
         // Neuen Preis der Bestellung berechnen
-        BigDecimal neuerPreis = bestehendeBestellpositionen.stream().map(bp -> bp.getProdukt().getPreis().multiply(BigDecimal.valueOf(bp.getMenge()))).reduce(BigDecimal.ZERO, BigDecimal::add);
+        BigDecimal neuerPreis = bestehendeBestellpositionen.stream()
+                .map(bp -> bp.getProdukt().getPreis().multiply(BigDecimal.valueOf(bp.getMenge())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
         bestehendeBestellung.setPreis(neuerPreis);
         log.info("Neuer Preis für Bestellung {} berechnet: {}", bestellnummer, neuerPreis);
 
@@ -254,6 +316,7 @@ public class BestellungController {
 
         return "redirect:/kunden/" + kundennummer + "/bestellungen";
     }
+
 
     /**
      * Löscht eine bestehende Bestellung für einen bestimmten Kunden.
