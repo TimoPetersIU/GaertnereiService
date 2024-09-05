@@ -26,7 +26,7 @@ public class KundenController {
 
     @GetMapping("/")
     public String index() {
-        return "index";
+        return "redirect:/kunden";
     }
 
     // Alle Kunden anzeigen
