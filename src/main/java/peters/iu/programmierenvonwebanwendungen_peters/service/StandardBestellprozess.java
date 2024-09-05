@@ -2,6 +2,17 @@ package peters.iu.programmierenvonwebanwendungen_peters.service;
 
 import peters.iu.programmierenvonwebanwendungen_peters.entity.Bestellung;
 
+/**
+ * Konkrete Implementierung des Bestellprozesses für Standardbestellungen.
+ * <p>
+ * Diese Klasse definiert die Schritte für die Bearbeitung einer Standardbestellung.
+ * Die Schritte beinhalten die Auswahl des Produkts, die Angabe der Versandadresse
+ * und die Durchführung der Zahlung. Die konkrete Implementierung dieser Schritte
+ * erfolgt hier.
+ * </p>
+ *
+ * @author Timo Peters - IU Hamburg
+ */
 public class StandardBestellprozess extends Bestellprozess {
 
     @Override
@@ -18,5 +29,4 @@ public class StandardBestellprozess extends Bestellprozess {
     protected void zahlungDurchfuehren(Bestellung bestellung) {
         System.out.println("Zahlung für Bestellung #" + bestellung.getBestellnummer() + " durchgeführt.");
     }
-
 }
