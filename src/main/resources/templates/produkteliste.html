@@ -48,9 +48,10 @@
             <td th:text="${produkt.bestand}"></td>
             <td>
                 <a th:href="@{/produkte/{id}/bearbeiten(id=${produkt.id})}" class="btn btn-info btn-sm">Bearbeiten</a>
-                <form th:action="@{/produkte/{id}/loeschen(id=${produkt.id})}" method="post">
+                <form th:action="@{/produkte/{id}/loeschen(id=${produkt.id})}" method="post" class="d-inline" onsubmit="return confirm('Möchten Sie dieses Produkt wirklich löschen?');">
                     <button type="submit" class="btn btn-danger">Löschen</button>
                 </form>
+
             </td>
         </tr>
         </tbody>

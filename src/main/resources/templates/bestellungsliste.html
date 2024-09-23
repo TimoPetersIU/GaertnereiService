@@ -58,7 +58,7 @@
                 <a class="btn btn-info btn-sm"
                    th:href="@{/kunden/{kundennummer}/bestellungen/{id}/bearbeiten(kundennummer=${kunde.kundennummer}, id=${bestellung.bestellnummer})}">Bearbeiten</a>
                 <form th:action="@{/kunden/{kundennummer}/bestellungen/{id}/loeschen(kundennummer=${kunde.kundennummer}, id=${bestellung.bestellnummer})}"
-                      method="post" class="d-inline">
+                      method="post" class="d-inline" onsubmit="return confirm('Möchten Sie dieses Bestellung wirklich löschen?');">
                     <button type="submit" class="btn btn-danger btn-sm">Löschen</button>
                 </form>
             </td>
