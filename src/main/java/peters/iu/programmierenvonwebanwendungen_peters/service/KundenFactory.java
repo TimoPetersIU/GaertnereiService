@@ -39,7 +39,7 @@ public class KundenFactory {
             case 5:
                 return new Stammkunde(kundentyp); // Erstellt ein Stammkunde-Objekt
             default:
-                // Wirft eine Ausnahme, wenn der angegebene Kundentyp nicht unterstützt wird
+                // Wirft eine Exception, wenn der angegebene Kundentyp nicht unterstützt wird
                 throw new IllegalArgumentException("Ungültiger Kundentyp: " + kundentypId);
         }
     }
