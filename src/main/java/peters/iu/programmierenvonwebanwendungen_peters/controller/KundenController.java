@@ -40,7 +40,7 @@ public class KundenController {
     @GetMapping("/")
     public String index() {
         // Weiterleitung zur Kundenübersicht
-        return "redirect:/kunden";
+        return "index";
     }
 
     /**
