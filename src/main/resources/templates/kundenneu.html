@@ -7,7 +7,8 @@
 </head>
 <body>
 
-<div th:replace="fragments/navbar :: navbar"></div>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
 <div class="container">
     <h1 th:text="${kunde.kundennummer == null} ? 'Neuer Kunde' : 'Kunde bearbeiten'"></h1>
 
