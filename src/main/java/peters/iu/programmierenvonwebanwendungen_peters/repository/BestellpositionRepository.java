@@ -3,6 +3,9 @@ package peters.iu.programmierenvonwebanwendungen_peters.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import peters.iu.programmierenvonwebanwendungen_peters.entity.bestellung.Bestellposition;
+import peters.iu.programmierenvonwebanwendungen_peters.entity.produkt.Produkt;
+
+import java.util.List;
 
 /**
  * Repository für die {@link Bestellposition} Entität.
@@ -13,4 +16,5 @@ import peters.iu.programmierenvonwebanwendungen_peters.entity.bestellung.Bestell
  */
 @Repository
 public interface BestellpositionRepository extends JpaRepository<Bestellposition, Long> {
+    List<Bestellposition> findByProdukt(Produkt produkt);
 }
