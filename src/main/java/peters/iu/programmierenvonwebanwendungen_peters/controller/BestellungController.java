@@ -110,12 +110,12 @@ public class BestellungController {
         // Kunde zur Bestellung zuordnen
         bestellung.setKunde(kunde);
 
+        // Bestellpositionen erstellen, Bestand prüfen und Gesamtpreis berechnen (Logik im Service)
+        bestellungService.verarbeiteNeueBestellung(bestellung, produktIds, mengen);
+
         // Bestellprozess anhand des Typs aus der Factory holen und auf die Bestellung anwenden
         Bestellprozess bestellprozess = bestellprozessFactory.getBestellprozess(bestellprozessTyp);
         bestellprozess.bestellungVerarbeiten(bestellung);
-
-        // Bestellpositionen erstellen, Bestand prüfen und Gesamtpreis berechnen (Logik im Service)
-        bestellungService.verarbeiteNeueBestellung(bestellung, produktIds, mengen);
 
         // Bestellung in der Datenbank speichern
         bestellungRepository.save(bestellung);

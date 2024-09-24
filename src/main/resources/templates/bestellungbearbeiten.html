@@ -32,14 +32,6 @@
                 <option th:value="3">Geliefert</option>
             </select>
         </div>
-        <div class="form-group">
-            <label for="bestellprozess">Bestellprozess:</label>
-            <select class="form-control" id="bestellprozess" name="bestellprozess">
-                <option value="standard" th:selected="${bestellung.bestellprozessTyp == 'standard'}">Standard</option>
-                <option value="express" th:selected="${bestellung.bestellprozessTyp == 'express'}">Express</option>
-                <option value="abholung" th:selected="${bestellung.bestellprozessTyp == 'abholung'}">Abholung</option>
-            </select>
-        </div>
 
         <h2>Bestellpositionen</h2>
         <table class="table" id="bestellpositionenTabelle">
