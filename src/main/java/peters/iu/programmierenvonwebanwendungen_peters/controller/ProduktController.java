@@ -114,8 +114,7 @@ public class ProduktController {
      */
     @PostMapping("/produkte/{id}/loeschen")
     public String produktLoeschen(@PathVariable Long id, Model model) {
-        Produkt produkt = produktRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + id));
+        Produkt produkt = produktRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Ungültige Produkt-ID: " + id));
 
         List<Bestellposition> bestellpositionen = bestellpositionRepository.findByProdukt(produkt);
         if (!bestellpositionen.isEmpty()) {

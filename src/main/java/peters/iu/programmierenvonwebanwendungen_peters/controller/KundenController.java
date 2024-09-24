@@ -88,15 +88,14 @@ public class KundenController {
     /**
      * Erstellt einen neuen Kunden mit den übergebenen Daten und speichert ihn in der Datenbank.
      *
-     * @param kunde die Daten des neuen Kunden
+     * @param kunde       die Daten des neuen Kunden
      * @param kundentypId die ID des Kundentyps
      * @return eine Weiterleitung zur Kundenübersicht
      */
     @PostMapping("/kunden")
     public String neuerKundeErstellen(@ModelAttribute Kunde kunde, @RequestParam("kundentypId") Long kundentypId) {
         // Den Kundentyp anhand der übergebenen ID aus der Datenbank abrufen
-        Kundentyp kundentyp = kundentypRepository.findById(kundentypId)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültiger Kundentyp-ID: " + kundentypId));
+        Kundentyp kundentyp = kundentypRepository.findById(kundentypId).orElseThrow(() -> new IllegalArgumentException("Ungültiger Kundentyp-ID: " + kundentypId));
 
         // Neuen Kunden basierend auf dem Kundentyp erstellen
         Kunde neuerKunde = kundenFactory.erstelleKunde(kundentyp);
@@ -121,15 +120,14 @@ public class KundenController {
     /**
      * Zeigt das Formular zum Bearbeiten eines bestehenden Kunden an.
      *
-     * @param id die ID des zu bearbeitenden Kunden
+     * @param id    die ID des zu bearbeitenden Kunden
      * @param model das Model, um den bestehenden Kunden und die Kundentypen zur View zu übergeben
      * @return der Name der View für das Kunden-Bearbeitungsformular
      */
     @GetMapping("/kunden/{id}/bearbeiten")
     public String kundeBearbeitenFormular(@PathVariable Long id, Model model) {
         // Den bestehenden Kunden anhand der ID aus der Datenbank abrufen
-        Kunde kunde = kundenRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Kunden-ID: " + id));
+        Kunde kunde = kundenRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Ungültige Kunden-ID: " + id));
         // Den Kunden und die Kundentypen dem Model hinzufügen
         model.addAttribute("kunde", kunde);
         model.addAttribute("kundentypen", kundentypRepository.findAll());
@@ -142,19 +140,17 @@ public class KundenController {
     /**
      * Bearbeitet die Daten eines bestehenden Kunden und speichert die Änderungen.
      *
-     * @param id die ID des zu bearbeitenden Kunden
-     * @param kunde die aktualisierten Daten des Kunden
+     * @param id          die ID des zu bearbeitenden Kunden
+     * @param kunde       die aktualisierten Daten des Kunden
      * @param kundentypId die ID des Kundentyps
      * @return eine Weiterleitung zur Kundenübersicht
      */
     @PostMapping("/kunden/{id}")
     public String kundeBearbeiten(@PathVariable Long id, @ModelAttribute Kunde kunde, @RequestParam("kundentypId") Long kundentypId) {
         // Den bestehenden Kunden anhand der ID aus der Datenbank abrufen
-        Kunde existingKunde = kundenRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültige Kunden-ID: " + id));
+        Kunde existingKunde = kundenRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Ungültige Kunden-ID: " + id));
         // Den Kundentyp anhand der übergebenen ID aus der Datenbank abrufen
-        Kundentyp kundentyp = kundentypRepository.findById(kundentypId)
-                .orElseThrow(() -> new IllegalArgumentException("Ungültiger Kundentyp-ID: " + kundentypId));
+        Kundentyp kundentyp = kundentypRepository.findById(kundentypId).orElseThrow(() -> new IllegalArgumentException("Ungültiger Kundentyp-ID: " + kundentypId));
 
         // Überprüfen, ob der Kundentyp geändert wurde
         if (!existingKunde.getKundentyp().equals(kundentyp)) {
