@@ -29,5 +29,6 @@ public class Geschaeftskunde extends Kunde {
      * Standardkonstruktor für die JPA-Entität.
      * Wird von JPA benötigt, um Instanzen der Entität zu erstellen.
      */
-    public Geschaeftskunde() {}
+    public Geschaeftskunde() {
+    }
 }

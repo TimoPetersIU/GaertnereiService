@@ -9,12 +9,11 @@ import java.util.List;
 
 /**
  * Repository für die {@link Kunde} Entität.
- *
+ * <p>
  * Dieses Repository bietet CRUD-Operationen für die {@link Kunde} Entität und ermöglicht
  * die Durchführung von Abfragen über die Kunden-Tabelle in der Datenbank. Es erweitert
  * {@link JpaRepository}, um grundlegende Datenbankoperationen wie Erstellen, Lesen,
  * Aktualisieren und Löschen von Kunden zu ermöglichen.
- *
  *
  * @author Timo Peters - IU Hamburg
  */
