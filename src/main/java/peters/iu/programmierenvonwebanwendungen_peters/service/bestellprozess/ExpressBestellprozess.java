@@ -16,6 +16,8 @@ import java.math.BigDecimal;
  */
 public class ExpressBestellprozess extends Bestellprozess {
 
+    private static final BigDecimal EXPRESS_ZUSCHLAG = new BigDecimal("5.00"); // Fester Expresszuschlag
+
     @Override
     protected void produktAuswaehlen(Bestellung bestellung) {
         System.out.println("Produkt für Expressbestellung #" + bestellung.getBestellnummer() + " ausgewählt.");
@@ -28,16 +30,12 @@ public class ExpressBestellprozess extends Bestellprozess {
 
     @Override
     protected void zahlungDurchfuehren(Bestellung bestellung) {
-        // Berechnet den Expresszuschlag als 10% des Bestellpreises
-        BigDecimal expressZuschlag = bestellung.getPreis().multiply(new BigDecimal("0.10")); // 10% Expresszuschlag
-
         // Berechnet den neuen Gesamtpreis einschließlich des Expresszuschlags
-        BigDecimal gesamtpreis = bestellung.getPreis().add(expressZuschlag);
+        BigDecimal gesamtpreis = bestellung.getPreis().add(EXPRESS_ZUSCHLAG);
 
         // Setzt den neuen Preis in der Bestellung
         bestellung.setPreis(gesamtpreis);
 
-        // Gibt eine Nachricht über den Zahlungsvorgang aus, einschließlich des Expresszuschlags
         System.out.println("Zahlung für Expressbestellung #" + bestellung.getBestellnummer() + " in Höhe von " + gesamtpreis + " € durchgeführt (inkl. Expresszuschlag).");
     }
 
