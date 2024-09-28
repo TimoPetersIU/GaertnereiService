@@ -10,9 +10,7 @@ import java.util.List;
  * <p>
  * Die Klasse verwendet das Vererbungsmuster Single Table, um verschiedene
  * Kundentypen in einer einzigen Tabelle zu speichern. Der Typ des Kunden wird
- * durch das Feld 'dtype' in der Tabelle unterschieden. Dies ermöglicht eine
- * flexible Handhabung unterschiedlicher Kundentypen innerhalb einer einheitlichen
- * Datenstruktur.
+ * durch das Feld 'dtype' in der Tabelle unterschieden.
  * </p>
  *
  * @author Timo Peters - IU Hamburg
